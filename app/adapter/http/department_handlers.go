@@ -2,9 +2,9 @@ package http
 
 import (
 	"github.com/BenefexLtd/departments-api-refactor/app/usecase"
-	onehuberrors "github.com/BenefexLtd/departments-api-refactor/app/utl/errors"
-	httputl "github.com/BenefexLtd/departments-api-refactor/app/utl/http"
-	resp "github.com/BenefexLtd/departments-api-refactor/app/utl/render"
+	onehuberrors "github.com/BenefexLtd/onehub-go-base/pkg/errors"
+	httputl "github.com/BenefexLtd/onehub-go-base/pkg/http"
+	resp "github.com/BenefexLtd/onehub-go-base/pkg/render"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/teltech/logger"
@@ -71,12 +71,19 @@ func (h *DepartmentHandler) GetDepartment(w http.ResponseWriter, req *http.Reque
 }
 
 func (h *DepartmentHandler) CreateDepartment(w http.ResponseWriter, req *http.Request) {
-	post := &usecase.PostDepartment{}
-	if err := render.Bind(req, post); err != nil {
+	companyId := chi.URLParam(req, "companyId")
+	postDept := &usecase.PostDepartment{}
+	if err := render.Bind(req, postDept); err != nil {
 		badReqError := err.(*onehuberrors.BadRequestError)
-		render.Render(w,req,h.errRender.ErrRender(badReqError))
+		render.Render(w, req, h.errRender.ErrRender(badReqError))
 		return
 	}
 
-	resp.OK(w, req, nil)
+	dept, err := h.useCaseService.CreateDepartment(req.Context(), companyId, postDept.Name)
+	if err != nil {
+		render.Render(w, req, h.errRender.ErrRender(err))
+		return
+	}
+
+	resp.OK(w, req, dept)
 }

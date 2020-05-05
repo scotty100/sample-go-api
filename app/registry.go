@@ -4,9 +4,9 @@ import (
 	adapterhttp "github.com/BenefexLtd/departments-api-refactor/app/adapter/http"
 	data "github.com/BenefexLtd/departments-api-refactor/app/adapter/persistence"
 	"github.com/BenefexLtd/departments-api-refactor/app/usecase"
-	"github.com/BenefexLtd/departments-api-refactor/app/utl/config"
-	"github.com/BenefexLtd/departments-api-refactor/app/utl/mongo"
-	utlrender "github.com/BenefexLtd/departments-api-refactor/app/utl/render"
+	"github.com/BenefexLtd/onehub-go-base/pkg/config"
+	"github.com/BenefexLtd/onehub-go-base/pkg/mongo"
+	utlrender "github.com/BenefexLtd/onehub-go-base/pkg/render"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
@@ -48,8 +48,6 @@ func Start(config *config.Configuration) error {
 func getDepartmentHandler(logger *logger.Log, mongo *mongo.Datastore) *adapterhttp.DepartmentHandler{
 
 	departmentRepository := data.DepartmentRepositoryImpl{Store: mongo, Logger: logger}
-	//publisher := messaging.Publisher{Topic: "test"}
-	//departmentService := service.DepartmentServiceImpl{Repository:&departmentRepository, Publisher: &publisher}
 	useCaseService := usecase.NewDepartmentUseCase(&departmentRepository)
 	errRenderer := utlrender.NewErrorRenderer(logger)
 	return adapterhttp.NewDepartmentHandler(logger, useCaseService, errRenderer)

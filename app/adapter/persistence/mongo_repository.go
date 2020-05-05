@@ -3,7 +3,7 @@ package data
 import (
 	"context"
 	"github.com/BenefexLtd/departments-api-refactor/app/domain/model"
-	"github.com/BenefexLtd/departments-api-refactor/app/utl"
+	"github.com/BenefexLtd/onehub-go-base/pkg"
 	"github.com/teltech/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	utlmongo "github.com/BenefexLtd/departments-api-refactor/app/utl/mongo"
+	utlmongo "github.com/BenefexLtd/onehub-go-base/pkg/mongo"
 
 )
 

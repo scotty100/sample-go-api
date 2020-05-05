@@ -5,17 +5,19 @@ import (
 	"fmt"
 	"github.com/BenefexLtd/departments-api-refactor/app/domain/model"
 	"github.com/BenefexLtd/departments-api-refactor/app/domain/service"
-	onehuberrors "github.com/BenefexLtd/departments-api-refactor/app/utl/errors"
+	onehuberrors "github.com/BenefexLtd/onehub-go-base/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type DepartmentUseCase interface {
 	GetPagedDepartmentsForCompany(ctx context.Context, companyId string, sort string, page int64, size int64) (*DepartmentPagedResult, onehuberrors.OneHubError)
 	GetDepartment(ctx context.Context, companyId, departmentId string) (*DepartmentDto, onehuberrors.OneHubError)
+	CreateDepartment(ctx context.Context, companyId, name string) (*DepartmentDto, onehuberrors.OneHubError)
 }
 
 type departmentUseCase struct {
-	repo service.DepartmentRepository
+	repo          service.DepartmentRepository
+	domainService service.DepartmentServiceImpl
 }
 
 func NewDepartmentUseCase(repo service.DepartmentRepository) *departmentUseCase {
@@ -28,13 +30,13 @@ func (d *departmentUseCase) GetPagedDepartmentsForCompany(ctx context.Context, c
 
 	depts, err := d.repo.FindCompanyDepartments(ctx, companyId, sort, page, size)
 	if err != nil {
-		return nil,  onehuberrors.NewOneHubError(err,   fmt.Sprintf("error getting pages companies for %s", companyId), 500)
+		return nil, onehuberrors.NewOneHubError(err, fmt.Sprintf("error getting pages companies for %s", companyId), 500)
 
 	}
 
 	count, cErr := d.repo.CountDepartmentsForCompany(ctx, companyId)
 	if cErr != nil {
-		return nil, onehuberrors.NewOneHubError(cErr,  fmt.Sprintf("error department count for company for %s", companyId), 500)
+		return nil, onehuberrors.NewOneHubError(cErr, fmt.Sprintf("error department count for company for %s", companyId), 500)
 	}
 
 	return &DepartmentPagedResult{
@@ -49,7 +51,7 @@ func (d *departmentUseCase) GetPagedDepartmentsForCompany(ctx context.Context, c
 
 }
 
-func (d *departmentUseCase) GetDepartment(ctx context.Context, companyId, departmentId string) (*DepartmentDto,  onehuberrors.OneHubError) {
+func (d *departmentUseCase) GetDepartment(ctx context.Context, companyId, departmentId string) (*DepartmentDto, onehuberrors.OneHubError) {
 
 	department, err := d.repo.FindByCompanyIdAndId(ctx, companyId, departmentId)
 	if err != nil {
@@ -58,15 +60,24 @@ func (d *departmentUseCase) GetDepartment(ctx context.Context, companyId, depart
 		} else {
 			return nil, onehuberrors.NewOneHubError(err, fmt.Sprintf("Error finding department %s for company %s", departmentId, companyId), 500)
 		}
+
+		return nil, onehuberrors.NewOneHubError(err, fmt.Sprintf("Error getting department %s for company %s", departmentId, companyId), 500)
 	}
 
 	dto := DepartmentDto(*department)
 	return &dto, nil
 }
 
-//func (d *departmentUseCase) CreateDepartment(ctx context.Context, postDepartment PostDepartment) (*DepartmentDto,  *onehuberrors.OneHubError) {
-//
-//}
+func (d *departmentUseCase) CreateDepartment(ctx context.Context, companyId, name string) (*DepartmentDto, onehuberrors.OneHubError) {
+
+	department, err := d.domainService.GetDepartmentOrCreate(ctx, companyId, name)
+	if err != nil {
+		return nil, onehuberrors.NewOneHubError(err, fmt.Sprintf("Error creating department %s for company %s", name, companyId), 500)
+	}
+
+	dto := DepartmentDto(*department)
+	return &dto, nil
+}
 
 func mapToDocumentInfos(departments []model.Department) []DepartmentInfo {
 	var departmentInfos = make([]DepartmentInfo, 0)

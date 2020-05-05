@@ -2,7 +2,7 @@ package render
 
 import (
 	"fmt"
-	"github.com/BenefexLtd/departments-api-refactor/app/utl/errors"
+	"github.com/BenefexLtd/onehub-go-base/pkg/errors"
 	"github.com/go-chi/render"
 	logger2 "github.com/teltech/logger"
 	"net/http"

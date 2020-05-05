@@ -2,7 +2,7 @@ package messaging
 
 import (
 	"context"
-	"github.com/BenefexLtd/departments-api-refactor/app/utl/messaging"
+	"github.com/BenefexLtd/onehub-go-base/pkg/messaging"
 	uuid "github.com/satori/go.uuid"
 )
 

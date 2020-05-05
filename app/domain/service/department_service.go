@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/BenefexLtd/departments-api-refactor/app/domain/event"
 	"github.com/BenefexLtd/departments-api-refactor/app/domain/model"
-	"github.com/BenefexLtd/departments-api-refactor/app/utl/messaging"
+	"github.com/BenefexLtd/onehub-go-base/pkg/messaging"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,7 +19,7 @@ type DepartmentServiceImpl struct {
 
 func (ds *DepartmentServiceImpl) AddUserToDepartment(ctx context.Context, companyId, departmentName, userId string) error {
 
-	department, err := ds.getDepartmentOrCreate(ctx, companyId, departmentName)
+	department, err := ds.GetDepartmentOrCreate(ctx, companyId, departmentName)
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func (ds *DepartmentServiceImpl) RemoveUserFromDepartment(ctx context.Context, c
 	return nil
 }
 
-func (ds *DepartmentServiceImpl) getDepartmentOrCreate(ctx context.Context, companyId, name string) (*model.Department, error) {
+func (ds *DepartmentServiceImpl) GetDepartmentOrCreate(ctx context.Context, companyId, name string) (*model.Department, error) {
 	department, err := ds.Repository.FindDepartmentByName(ctx, companyId, name)
 	if err != nil && err != mongo.ErrNoDocuments {
 		return nil, errors.Wrap(err, fmt.Sprintf("error finding department: %s", name))

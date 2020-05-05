@@ -2,7 +2,7 @@ package http
 
 import (
 	"context"
-	resp "github.com/BenefexLtd/departments-api-refactor/app/utl/render"
+	resp "github.com/BenefexLtd/onehub-go-base/pkg/render"
 	"github.com/go-chi/render"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"

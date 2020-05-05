@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"errors"
-	utlerrors "github.com/BenefexLtd/departments-api-refactor/app/utl/errors"
+	utlerrors "github.com/BenefexLtd/onehub-go-base/pkg/errors"
 	"net/http"
 )
 
