@@ -6,6 +6,7 @@ import (
 	"github.com/BenefexLtd/departments-api-refactor/app/domain/event"
 	"github.com/BenefexLtd/departments-api-refactor/app/domain/model"
 	"github.com/BenefexLtd/departments-api-refactor/app/utl/messaging"
+	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/mongo"
 	"time"
@@ -25,7 +26,7 @@ func (ds *DepartmentServiceImpl) AddUserToDepartment(ctx context.Context, compan
 
 	dbErr := ds.Repository.AddUserToDepartment(ctx, department.Id, userId)
 	if dbErr != nil {
-		return fmt.Errorf("error adding user to department: %v", err)
+		return  errors.Wrap(err, "error adding user to department")
 	}
 
 	userAssignedToDepartmentEvent := event.NewUserAssignedToDepartmentEvent(department, userId)
@@ -40,7 +41,7 @@ func (ds *DepartmentServiceImpl) RemoveUserFromDepartment(ctx context.Context, c
 		if err == mongo.ErrNoDocuments {
 			return nil
 		} else {
-			return fmt.Errorf("error finding department: %s. %v", departmentName, err)
+			return errors.Wrap(err, fmt.Sprintf("error finding department: %s.", departmentName))
 		}
 	}
 
@@ -50,13 +51,13 @@ func (ds *DepartmentServiceImpl) RemoveUserFromDepartment(ctx context.Context, c
 
 	dbErr := ds.Repository.RemoveUserFromDepartment(ctx, department.Id, userId)
 	if dbErr != nil {
-		return fmt.Errorf("error removing user %s from department %s : %v", userId, department.Id, err)
+		return errors.Wrap(err, fmt.Sprintf("error removing user %s from department %s", userId, department.Id))
 	}
 
 	if len(department.UserIds) == 1 {
 		dbErr = ds.Repository.DeleteDepartment(ctx, department.Id)
 		if dbErr != nil {
-			return fmt.Errorf("error deleting department %s : %v", department.Id, err)
+			return errors.Wrap(err, fmt.Sprintf("error deleting department %s", department.Id))
 		}
 	}
 
@@ -66,7 +67,7 @@ func (ds *DepartmentServiceImpl) RemoveUserFromDepartment(ctx context.Context, c
 func (ds *DepartmentServiceImpl) getDepartmentOrCreate(ctx context.Context, companyId, name string) (*model.Department, error) {
 	department, err := ds.Repository.FindDepartmentByName(ctx, companyId, name)
 	if err != nil && err != mongo.ErrNoDocuments {
-		return nil, fmt.Errorf("error finding department: %v", err)
+		return nil, errors.Wrap(err, fmt.Sprintf("error finding department: %s", name))
 	}
 
 	if department == nil {
@@ -80,7 +81,7 @@ func (ds *DepartmentServiceImpl) getDepartmentOrCreate(ctx context.Context, comp
 
 		newDepartment, err := ds.Repository.AddDepartment(ctx, &departmentToAdd)
 		if err != nil {
-			return nil, fmt.Errorf("error creating new department %v", err)
+			return nil, errors.Wrap(err, "error creating new department")
 		}
 
 		department = newDepartment
@@ -93,7 +94,7 @@ func (ds *DepartmentServiceImpl) getDepartmentOrCreate(ctx context.Context, comp
 func (ds *DepartmentServiceImpl) GetDepartmentForUserId(ctx context.Context, userId string) (*model.Department, error) {
 	department, err := ds.Repository.FindDepartmentByUserId(ctx, userId)
 	if err != nil && err != mongo.ErrNoDocuments {
-		return nil, fmt.Errorf("error finding department for user %s : %v", userId, err)
+		return nil, errors.Wrap(err, fmt.Sprintf("error finding department for user %s", userId))
 	}
 
 	return department, nil
@@ -102,7 +103,7 @@ func (ds *DepartmentServiceImpl) GetDepartmentForUserId(ctx context.Context, use
 func (ds *DepartmentServiceImpl) GetDepartmentByCompanyAndName(ctx context.Context, companyId, name string) (*model.Department, error) {
 	department, err := ds.Repository.FindDepartmentByName(ctx, companyId, name)
 	if err != nil && err != mongo.ErrNoDocuments {
-		return nil, fmt.Errorf("error finding department %s for company %s: %v", name, companyId, err)
+		return nil, errors.Wrap(err, fmt.Sprintf("error finding department %s for company %s", name, companyId))
 	}
 
 	return department, nil
@@ -111,7 +112,7 @@ func (ds *DepartmentServiceImpl) GetDepartmentByCompanyAndName(ctx context.Conte
 func (ds *DepartmentServiceImpl) ReplaceDepartment(ctx context.Context, department *model.Department) (*model.Department, error) {
 	createdDepartment, err := ds.Repository.ReplaceDepartment(ctx, department)
 	if err != nil {
-		return nil, fmt.Errorf("error replacing department : %v", err)
+		return nil, errors.Wrap(err, fmt.Sprintf("error replacing department"))
 	}
 	return createdDepartment, nil
 }

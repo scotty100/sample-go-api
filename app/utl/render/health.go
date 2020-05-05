@@ -7,8 +7,8 @@ import (
 
 type HealthResponse struct{
 
-	HTTPStatusCode int `json:"-"`
-	alive bool `json:"alive"`
+	HTTPStatusCode int  `json:"-"`
+	Alive          bool `json:"alive"`
 }
 
 func (e *HealthResponse) Render(w http.ResponseWriter, r *http.Request) error {
@@ -18,9 +18,9 @@ func (e *HealthResponse) Render(w http.ResponseWriter, r *http.Request) error {
 
 
 func HealthFailureRender() render.Renderer{
-	return &HealthResponse{HTTPStatusCode:500,alive:false}
+	return &HealthResponse{HTTPStatusCode:500, Alive:false}
 }
 
 func HealthSuccessRender() render.Renderer{
-	return &HealthResponse{HTTPStatusCode:200,alive:true}
+	return &HealthResponse{HTTPStatusCode:200, Alive:true}
 }

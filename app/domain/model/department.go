@@ -2,8 +2,7 @@ package model
 
 import "time"
 
-// A Department
-// swagger:model department
+
 type Department struct {
 	Id                  string    `json:"id" bson:"_id"`
 	CompanyId           string    `json:"companyId" bson:"companyId"`

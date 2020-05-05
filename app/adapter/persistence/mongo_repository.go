@@ -48,7 +48,7 @@ func (r *DepartmentRepositoryImpl) FindCompanyDepartments(ctx context.Context, c
 	options.SetLimit(int64(size))
 	options.SetSkip(int64(page * size))
 
-	cur, err := r.Store.Db.Collection(DepartmentsCollection).Find(ctx, bson.M{"companyId": companyId}, options)
+	cur, err := r.Store.Db.Collection("departments").Find(ctx, bson.M{"companyId": companyId}, options)
 	if err != nil {
 		return nil, err
 	}

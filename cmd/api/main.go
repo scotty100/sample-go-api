@@ -21,7 +21,7 @@ import (
 
 func main() {
 
-	cfgPath := flag.String("p", "./cmd/pkg/conf.local.yaml", "Path to config file")
+	cfgPath := flag.String("p", "./cmd/api/conf.local.yaml", "Path to config file")
 	flag.Parse()
 
 	config, err := config.Load(*cfgPath)

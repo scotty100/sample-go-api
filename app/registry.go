@@ -1,15 +1,17 @@
 package app
 
 import (
-	"github.com/BenefexLtd/departments-api-refactor/app/adapter/http"
+	adapterhttp "github.com/BenefexLtd/departments-api-refactor/app/adapter/http"
 	data "github.com/BenefexLtd/departments-api-refactor/app/adapter/persistence"
 	"github.com/BenefexLtd/departments-api-refactor/app/usecase"
 	"github.com/BenefexLtd/departments-api-refactor/app/utl/config"
 	"github.com/BenefexLtd/departments-api-refactor/app/utl/mongo"
+	utlrender "github.com/BenefexLtd/departments-api-refactor/app/utl/render"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
 	"github.com/teltech/logger"
+	"net/http"
 	"time"
 )
 
@@ -29,28 +31,31 @@ func Start(config *config.Configuration) error {
 	healthHandler := getHealthHandler(mongo)
 
 	r.Use(render.SetContentType(render.ContentTypeJSON))
-	r.Use(middleware.Timeout(time.Second * 30))
+	r.Use(middleware.Timeout(time.Second * 5))
 
 	r.Get("/health", healthHandler.HealthCheck)
 	r.Get("/companies/{companyId}/departments", departmentHandler.GetCompanyDepartments)
+	r.Get("/companies/{companyId}/departments/{departmentId}", departmentHandler.GetDepartment)
+	r.Post("/companies/{companyId}/departments", departmentHandler.CreateDepartment)
 
 	// add paginnate middlewear
 
 
 
-	return nil
+	return http.ListenAndServe(config.Server.Port, r)
 }
 
-func getDepartmentHandler(logger *logger.Log, mongo *mongo.Datastore) *http.DepartmentHandler{
+func getDepartmentHandler(logger *logger.Log, mongo *mongo.Datastore) *adapterhttp.DepartmentHandler{
 
 	departmentRepository := data.DepartmentRepositoryImpl{Store: mongo, Logger: logger}
 	//publisher := messaging.Publisher{Topic: "test"}
 	//departmentService := service.DepartmentServiceImpl{Repository:&departmentRepository, Publisher: &publisher}
 	useCaseService := usecase.NewDepartmentUseCase(&departmentRepository)
-	return http.NewDepartmentHandler(&departmentRepository, useCaseService)
+	errRenderer := utlrender.NewErrorRenderer(logger)
+	return adapterhttp.NewDepartmentHandler(logger, useCaseService, errRenderer)
 }
 
-func getHealthHandler( mongo *mongo.Datastore) *http.HealthHandler{
+func getHealthHandler( mongo *mongo.Datastore) *adapterhttp.HealthHandler{
 
-	return http.NewHealthHandler(mongo.Session)
+	return adapterhttp.NewHealthHandler(mongo.Session)
 }

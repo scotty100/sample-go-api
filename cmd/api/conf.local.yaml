@@ -1,6 +1,7 @@
 database:
   log_queries: false
   timeout_seconds: 5
+  database: departments
 
 server:
   port: :8080

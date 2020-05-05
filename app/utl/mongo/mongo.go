@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/teltech/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -11,7 +12,7 @@ import (
 	"time"
 )
 
-const CONNECTED = "Successfully connected to database: %v"
+const CONNECTED = "Successfully connected to database: %s"
 
 type Datastore struct {
 	Db      *mongo.Database
@@ -24,8 +25,6 @@ func New(connectionString string, timeout int, databaseName string, log *logger.
 	var mongoDataStore *Datastore
 	db, session := connect(connectionString, timeout, databaseName, log)
 	if db != nil && session != nil {
-
-		// log statements here as well
 
 		mongoDataStore = new(Datastore)
 		mongoDataStore.Db = db
@@ -56,12 +55,12 @@ func connectToMongo(connectionString string, timeout int, databaseName string, l
 	clientOptions := options.Client().SetSocketTimeout(time.Duration(timeout) * time.Second).ApplyURI(connectionString)
 	session, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
-		panic(fmt.Errorf("error connecting to mongo: %s. %w ", connectionString , err ))
+		panic(errors.Wrap(err, fmt.Sprintf("error connecting to mongo: %s.", connectionString)))
 	}
 
 	err = session.Ping(context.TODO(), readpref.Primary())
 	if err != nil {
-		panic(fmt.Errorf("error pinging mongo: %s. %w", connectionString, err ))
+		panic(errors.Wrap(err, fmt.Sprintf("error pinging mongo: %s.", connectionString )))
 	}
 
 	log.Info(CONNECTED);

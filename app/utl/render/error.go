@@ -1,66 +1,55 @@
 package render
 
 import (
+	"fmt"
+	"github.com/BenefexLtd/departments-api-refactor/app/utl/errors"
 	"github.com/go-chi/render"
+	logger2 "github.com/teltech/logger"
 	"net/http"
 )
 
 type ErrResponse struct {
-	Err            error `json:"-"` // low-level runtime error
 	HTTPStatusCode int   `json:"-"` // http response status code
 
-	Errors interface{} `json:"error"`          // the errors to return
-	Output string 		`json:"error,omitempty"`
+	//Error       interface{} `json:"error"` // the errors to return (include when we have an error with a body)
+	FieldErrors interface{} `json:"fieldErrors"` // any fieldErrors to return
 }
 
 func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 
-	// log outgoing error
-
-	render.Status(r, e.HTTPStatusCode)
-
-	return nil
-}
-
-func NotFoundRender(err error) render.Renderer {
-	return &ErrResponse{
-		Err:            err,
-		HTTPStatusCode: 404,
-	}
-}
-
-func ErrRender(err error, httpStatus int) render.Renderer {
-	return &ErrResponse{
-		Err:            err,
-		HTTPStatusCode: httpStatus,
-	}
-}
-
-func ErrRenderWithBody(err error, httpStatus int, body interface{}) render.Renderer {
-	return &ErrResponse{
-		Err:            err,
-		HTTPStatusCode: httpStatus,
-		Errors:body,
-	}
-}
-
-type FieldError struct {
-	field string `json:"field"`
-	message string `json:"message"`
-}
-
-type ErrInvalidRequest struct {
-	Err            error `json:"-"` // low-level runtime error
-	HTTPStatusCode int   `json:"-"` // http response status code
-
-	Errors []FieldError `json:"fieldErrors"`          // the errors to return
-}
-
-func (e *ErrInvalidRequest) Render(w http.ResponseWriter, r *http.Request) error {
-
-	// log outgoing error
 	render.Status(r, e.HTTPStatusCode)
 	return nil
 }
 
+// could we pull a default logger from the context instead of creating new struct?
+type ErrorRenderer struct {
+	logger *logger2.Log
+}
 
+func NewErrorRenderer(logger *logger2.Log) *ErrorRenderer {
+	return &ErrorRenderer{logger: logger}
+
+}
+
+func (er *ErrorRenderer) ErrRender(err errors.OneHubError) render.Renderer {
+
+	// update to only lof server errors and not client errors
+	if err.HttpStatus() >= 500 {
+		er.logger.Error(fmt.Sprintf("%+v\n", err))
+		if err.Err() != nil {
+			er.logger.Error(fmt.Sprintf("%+v\n", err.Err))
+		}
+	} else {
+		er.logger.Debug(fmt.Sprintf("%+v\n", err))
+	}
+
+	resp := &ErrResponse{
+		HTTPStatusCode: err.HttpStatus(),
+	}
+
+	if bre, ok := err.(*errors.BadRequestError); ok {
+		resp.FieldErrors=bre.FieldErrors
+	}
+
+	return resp
+}

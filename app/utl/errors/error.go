@@ -1,21 +1,70 @@
 package errors
 
-type ProcessingError struct {
-	// Message is the error message that may be displayed to end users
-	Message string
-
-	IsRecoverable bool
-
-	Error error
+type FieldError struct {
+	Field   string `json:"field"`
+	Message string `json:"message"`
 }
 
-func (pe *ProcessingError) FullErrorMessage() string {
+type OneHubError interface {
+	HttpStatus() int
+	Err() error
+}
 
-	errorMessage := pe.Message
+type OneHubErrorBase struct {
+	err        error
+	message    string
+	httpStatus int
+}
 
-	if pe.Error != nil {
-		errorMessage = errorMessage + " : " + pe.Error.Error()
+func (e *OneHubErrorBase) Error() string {
+	return e.message
+}
+
+func (e *OneHubErrorBase) Err() error {
+	return e.err
+}
+
+func (e *OneHubErrorBase) HttpStatus() int {
+	return e.httpStatus
+}
+
+type BadRequestError struct {
+	FieldErrors []FieldError
+	*OneHubErrorBase
+}
+
+func NewOneHubError(err error, message string, httpStatus int) OneHubError {
+	return &OneHubErrorBase{
+		err:        err,
+		message:    message,
+		httpStatus: httpStatus,
 	}
+}
 
-	return errorMessage
+func NotFound(err error) OneHubError {
+	return &OneHubErrorBase{
+		err:        err,
+		message:    "NOT_FOUND",
+		httpStatus: 404,
+	}
+}
+
+func Conflict(err error) OneHubError {
+	return &OneHubErrorBase{
+		err:        err,
+		message:    "ALREADY_EXISTS",
+		httpStatus: 409,
+	}
+}
+
+func BadRequest(err error, fieldErrors []FieldError) OneHubError {
+
+	return &BadRequestError{
+		FieldErrors: fieldErrors,
+		OneHubErrorBase: &OneHubErrorBase{
+			err:        err,
+			message:    "BAD_REQUEST",
+			httpStatus: 400,
+		},
+	}
 }
