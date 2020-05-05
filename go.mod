@@ -3,7 +3,7 @@ module github.com/BenefexLtd/departments-api-refactor
 go 1.13
 
 require (
-	github.com/BenefexLtd/onehub-go-base v1.0.0
+	github.com/BenefexLtd/onehub-go-base v1.0.1
 	github.com/go-chi/chi v4.1.1+incompatible
 	github.com/go-chi/render v1.0.1
 	github.com/pkg/errors v0.9.1

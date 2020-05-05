@@ -2,6 +2,8 @@ github.com/BenefexLtd/onehub-go-base v0.0.0-20200505191025-c683cb10d11d h1:y/PEZ
 github.com/BenefexLtd/onehub-go-base v0.0.0-20200505191025-c683cb10d11d/go.mod h1:LEqFV8WtiBUhqRtgpbTovwmUTUKPVGUNHaa1G2TSwG0=
 github.com/BenefexLtd/onehub-go-base v1.0.0 h1:ySfGRcEzADE0/8O7u3jmr+DbogZlS9WGQ7tzq+kqYUQ=
 github.com/BenefexLtd/onehub-go-base v1.0.0/go.mod h1:LEqFV8WtiBUhqRtgpbTovwmUTUKPVGUNHaa1G2TSwG0=
+github.com/BenefexLtd/onehub-go-base v1.0.1 h1:JxZxh+m5LpRy7/HKIRJJafxbz/fonuSnqUh6/CkfLjk=
+github.com/BenefexLtd/onehub-go-base v1.0.1/go.mod h1:LEqFV8WtiBUhqRtgpbTovwmUTUKPVGUNHaa1G2TSwG0=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
